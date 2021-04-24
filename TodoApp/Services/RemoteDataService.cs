@@ -58,5 +58,16 @@ namespace TodoApp.Services
             IRestResponse response = client.Execute(request);
             return null;
         }
+
+        public async Task<List<Todo>> AddTodo(string title, string access_token)
+        {
+            RestClient client = new RestClient("http://demo2.z-bit.ee/tasks");
+            RestRequest request = new RestRequest(Method.POST);
+            request.AddHeader("Authorization", $"Bearer {access_token}");
+            request.AddJsonBody(new { title = title, desc = "" });
+            request.AddParameter("text/plain", "", ParameterType.RequestBody);
+            IRestResponse response = client.Execute(request);
+            return null;
+        }
     }
 }

@@ -24,6 +24,8 @@ namespace TodoApp
             var loginButton = FindViewById<Button>(Resource.Id.loginButton);
             var helloTextView = FindViewById<TextView>(Resource.Id.helloTextView);
             var listView = FindViewById<ListView>(Resource.Id.taskListView);
+            var todoTextView = FindViewById<TextView>(Resource.Id.todoTextView);
+            var addTodoButton = FindViewById<Button>(Resource.Id.addTodoButton);
 
             loginButton.Click += async delegate
             {
@@ -51,13 +53,14 @@ namespace TodoApp
                             var selectedItem = taskData[args.Position];
                             await dataService.DeleteTodo(selectedItem.id.ToString(), userData.access_token);
                             var updatedTaskData = await dataService.GetTodos(userData.access_token);
-                            listView.Adapter = new TodoAdapter(this, updatedTaskData);
+
                             int updatedCount = 0;
                             foreach (var item in updatedTaskData)
                             {
                                 updatedCount++;
                             }
                             helloTextView.Text = $"Hello {userData.firstname}! You have {updatedCount} tasks.";
+                            listView.Adapter = new TodoAdapter(this, updatedTaskData);
                             Toast.MakeText(this, $"{selectedItem.title} deleted", ToastLength.Long).Show();
                         };
                     }
@@ -67,6 +70,30 @@ namespace TodoApp
                         toast.SetGravity(GravityFlags.Center, 0, 0);
                         toast.Show();
                     }
+                }
+            };
+
+            addTodoButton.Click += async delegate
+            {
+                var username = usernameEditText.Text.Trim();
+                var password = passwordEditText.Text.Trim();
+                var newTodo = todoTextView.Text.Trim();
+                var userData = await dataService.GetUser(username, password);
+                if (!string.IsNullOrEmpty(newTodo))
+                {
+                    await dataService.AddTodo(newTodo, userData.access_token);
+                    var taskData = await dataService.GetTodos(userData.access_token);
+                    todoTextView.Text = "";
+
+                    int count = 0;
+                    foreach (var item in taskData)
+                    {
+                        count++;
+                    }
+
+                    helloTextView.Text = $"Hello {userData.firstname}! You have {count} tasks.";
+
+                    listView.Adapter = new TodoAdapter(this, taskData);
                 }
             };
         }
