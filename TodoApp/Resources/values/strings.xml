@@ -5,4 +5,6 @@
   <string name="passwordTextView">Enter password</string>
   <string name="loginButton">Login</string>
   <string name="taskListView">Task list</string>
+  <string name="todoTextView">Enter todo</string>
+  <string name="addTodoButton">Add</string>
 </resources>
