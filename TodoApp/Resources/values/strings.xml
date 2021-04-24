@@ -1,0 +1,8 @@
+<resources>
+  <string name="app_name">TodoApp</string>
+  <string name="action_settings">Settings</string>
+  <string name="usernameTextView">Enter username</string>
+  <string name="passwordTextView">Enter password</string>
+  <string name="loginButton">Login</string>
+  <string name="taskListView">Task list</string>
+</resources>
