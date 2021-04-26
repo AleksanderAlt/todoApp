@@ -2,9 +2,11 @@
 using Android.OS;
 using Android.Runtime;
 using Android.Widget;
+using Android.Support.V7.App;
+using Android.Content;
 using TodoApp.Services;
 using Android.Views;
-using Android.Support.V7.App;
+using Xamarin.Essentials;
 
 namespace TodoApp
 {
@@ -15,85 +17,29 @@ namespace TodoApp
         {
             base.OnCreate(savedInstanceState);
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
-            // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
-            var dataService = new RemoteDataService();
 
             var usernameEditText = FindViewById<EditText>(Resource.Id.usernameTextView);
             var passwordEditText = FindViewById<EditText>(Resource.Id.passwordTextView);
             var loginButton = FindViewById<Button>(Resource.Id.loginButton);
-            var helloTextView = FindViewById<TextView>(Resource.Id.helloTextView);
-            var listView = FindViewById<ListView>(Resource.Id.taskListView);
-            var todoTextView = FindViewById<TextView>(Resource.Id.todoTextView);
-            var addTodoButton = FindViewById<Button>(Resource.Id.addTodoButton);
+
+            var loginService = new LoginService();
 
             loginButton.Click += async delegate
             {
-                var username = usernameEditText.Text.Trim();
-                var password = passwordEditText.Text.Trim();
-                if (!string.IsNullOrEmpty(username) || !string.IsNullOrEmpty(password))
+                if (!string.IsNullOrEmpty(usernameEditText.Text) || !string.IsNullOrEmpty(passwordEditText.Text))
                 {
-                    try
-                    {
-                        var userData = await dataService.GetUser(username, password);
-                        var taskData = await dataService.GetTodos(userData.access_token);
-
-                        int count = 0;
-                        foreach (var item in taskData)
-                        {
-                            count++;
-                        }
-
-                        helloTextView.Text = $"Hello {userData.firstname}! You have {count} tasks.";
-
-                        listView.Adapter = new TodoAdapter(this, taskData);
-                        
-                        listView.ItemClick += async delegate (object sender, AdapterView.ItemClickEventArgs args)
-                        {
-                            var selectedItem = taskData[args.Position];
-                            await dataService.DeleteTodo(selectedItem.id.ToString(), userData.access_token);
-                            var updatedTaskData = await dataService.GetTodos(userData.access_token);
-
-                            int updatedCount = 0;
-                            foreach (var item in updatedTaskData)
-                            {
-                                updatedCount++;
-                            }
-                            helloTextView.Text = $"Hello {userData.firstname}! You have {updatedCount} tasks.";
-                            listView.Adapter = new TodoAdapter(this, updatedTaskData);
-                            Toast.MakeText(this, $"{selectedItem.title} deleted", ToastLength.Long).Show();
-                        };
-                    }
-                    catch
-                    {
-                        Toast toast = Toast.MakeText(this, "Enter correct password or username", ToastLength.Long);
-                        toast.SetGravity(GravityFlags.Center, 0, 0);
-                        toast.Show();
-                    }
+                    Preferences.Set("username", usernameEditText.Text);
+                    Preferences.Set("password", passwordEditText.Text);
+                    await loginService.Login(usernameEditText.Text, passwordEditText.Text);
+                    Intent intent = new Intent(this, typeof(TodoListActivity));
+                    StartActivity(intent);
                 }
-            };
-
-            addTodoButton.Click += async delegate
-            {
-                var username = usernameEditText.Text.Trim();
-                var password = passwordEditText.Text.Trim();
-                var newTodo = todoTextView.Text.Trim();
-                var userData = await dataService.GetUser(username, password);
-                if (!string.IsNullOrEmpty(newTodo))
+                else
                 {
-                    await dataService.AddTodo(newTodo, userData.access_token);
-                    var taskData = await dataService.GetTodos(userData.access_token);
-                    todoTextView.Text = "";
-
-                    int count = 0;
-                    foreach (var item in taskData)
-                    {
-                        count++;
-                    }
-
-                    helloTextView.Text = $"Hello {userData.firstname}! You have {count} tasks.";
-
-                    listView.Adapter = new TodoAdapter(this, taskData);
+                    Toast toast = Toast.MakeText(this, "Enter correct password or username", ToastLength.Long);
+                    toast.SetGravity(GravityFlags.Center, 0, 0);
+                    toast.Show();
                 }
             };
         }

@@ -4418,6 +4418,9 @@ namespace TodoApp
 			// aapt resource value: 0x7F0B0039
 			public const int support_simple_spinner_dropdown_item = 2131427385;
 			
+			// aapt resource value: 0x7F0B003B
+			public const int tasklist_layout = 2131427387;
+			
 			// aapt resource value: 0x7F0B003A
 			public const int task_row_layout = 2131427386;
 			
